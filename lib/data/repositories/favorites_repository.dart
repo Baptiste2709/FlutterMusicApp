@@ -3,7 +3,7 @@ import '../../api/models/artist.dart';
 import '../../core/constants/app_constants.dart';
 
 class FavoritesRepository {
-  late Box<Map> _favoritesBox;
+  late Box _favoritesBox;
   
   // Singleton
   static final FavoritesRepository _instance = FavoritesRepository._internal();
@@ -41,13 +41,13 @@ class FavoritesRepository {
   
   /// Récupère tous les artistes favoris
   List<Artist> getFavoriteArtists() {
-    final List<Map> favorites = _favoritesBox.get(
+    final List<dynamic> favorites = _favoritesBox.get(
       AppConstants.favoriteArtistsKey,
-      defaultValue: <Map>[],
-    ) as List<Map>;
+      defaultValue: <Map<String, dynamic>>[],
+    ) as List<dynamic>;
     
     return favorites.map((map) {
-      return Artist.fromJson(Map<String, dynamic>.from(map));
+      return Artist.fromJson(Map<String, dynamic>.from(map as Map));
     }).toList();
   }
   

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
 
 import 'api/client.dart';
@@ -40,16 +39,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Initialisation des services et dépendances
     final apiClient = ApiClient();
-    final artistService = ArtistService(Dio());
-    final albumService = AlbumService(Dio());
-    final chartService = ChartService(Dio());
-    final favoritesStorage = FavoritesStorage();
     
     // Création des repositories
-    final artistRepository = ArtistRepository(artistService: artistService);
-    final albumRepository = AlbumRepository(albumService: albumService);
-    final chartRepository = ChartRepository(chartService: chartService);
-    final favoritesRepository = FavoritesRepository(storage: favoritesStorage);
+    final artistRepository = ArtistRepository(); // Sans paramètre si le repository crée son propre client
+    final albumRepository = AlbumRepository(); // Sans paramètre si le repository crée son propre client
+    final chartRepository = ChartRepository(chartService: apiClient.chartService);
+    final favoritesRepository = FavoritesRepository(); 
     
     // Configuration du router
     final appRouter = AppRouter();

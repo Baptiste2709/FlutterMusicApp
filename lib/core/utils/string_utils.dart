@@ -44,4 +44,19 @@ class StringUtils {
     
     return formatted;
   }
+
+  static String cleanString(String? text) {
+  if (isEmpty(text)) return '';
+  
+  // Enlever les balises HTML
+  String cleaned = text!.replaceAll(RegExp(r'<[^>]*>'), '');
+  
+  // Remplacer les sauts de ligne multiples par un seul
+  cleaned = cleaned.replaceAll(RegExp(r'\n\s*\n'), '\n\n');
+  
+  // Enlever les espaces blancs en trop
+  cleaned = cleaned.trim();
+  
+  return cleaned;
+}
 }

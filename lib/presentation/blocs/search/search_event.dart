@@ -1,21 +1,22 @@
 import 'package:equatable/equatable.dart';
 
-abstract class SearchBaseEvent extends Equatable {
-  const SearchBaseEvent();
+abstract class SearchEvent extends Equatable {
+  const SearchEvent();
   
   @override
   List<Object> get props => [];
 }
 
-class SearchEvent extends SearchBaseEvent {
+class SearchQueryEvent extends SearchEvent {
   final String query;
   
-  const SearchEvent(this.query);
+  const SearchQueryEvent(this.query);
   
   @override
   List<Object> get props => [query];
 }
 
-class ClearSearchEvent extends SearchBaseEvent {
+// Cette classe doit également étendre SearchEvent, pas SearchBaseEvent
+class ClearSearchEvent extends SearchEvent {
   const ClearSearchEvent();
 }

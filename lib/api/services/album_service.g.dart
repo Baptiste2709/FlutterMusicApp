@@ -12,24 +12,16 @@ class _AlbumService implements AlbumService {
   _AlbumService(
     this._dio, {
     this.baseUrl,
-  }) {
-    baseUrl ??= 'https://theaudiodb.com/api/v1/json';
-  }
+  });
 
   final Dio _dio;
 
   String? baseUrl;
 
   @override
-  Future<AlbumResponse> getAlbumById({
-    String token = ApiConstants.token,
-    required String albumId,
-  }) async {
+  Future<AlbumResponse> getAlbumById({required String albumId}) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'token': token,
-      r'i': albumId,
-    };
+    final queryParameters = <String, dynamic>{r'i': albumId};
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;
     final _result = await _dio
@@ -54,19 +46,13 @@ class _AlbumService implements AlbumService {
   }
 
   @override
-  Future<SearchAlbumResult> getArtistAlbums({
-    String token = ApiConstants.token,
-    required String artistId,
-  }) async {
+  Future<AlbumResponse> getArtistAlbums({required String artistId}) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'token': token,
-      r'i': artistId,
-    };
+    final queryParameters = <String, dynamic>{r'i': artistId};
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;
     final _result = await _dio
-        .fetch<Map<String, dynamic>>(_setStreamType<SearchAlbumResult>(Options(
+        .fetch<Map<String, dynamic>>(_setStreamType<AlbumResponse>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
@@ -82,20 +68,14 @@ class _AlbumService implements AlbumService {
               _dio.options.baseUrl,
               baseUrl,
             ))));
-    final value = SearchAlbumResult.fromJson(_result.data!);
+    final value = AlbumResponse.fromJson(_result.data!);
     return value;
   }
 
   @override
-  Future<SearchAlbumResult> searchAlbums({
-    String token = ApiConstants.token,
-    required String albumName,
-  }) async {
+  Future<SearchAlbumResult> searchAlbums({required String albumName}) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'token': token,
-      r's': albumName,
-    };
+    final queryParameters = <String, dynamic>{r's': albumName};
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;
     final _result = await _dio

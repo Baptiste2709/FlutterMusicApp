@@ -18,7 +18,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   Future<void> _onLoadFavorites(LoadFavoritesEvent event, Emitter<FavoritesState> emit) async {
     try {
       emit(FavoritesLoadingState());
-      final favorites = await _favoritesRepository.getFavorites();
+      final favorites =  _favoritesRepository.getFavoriteArtists();
       emit(FavoritesLoadedState(favorites: favorites));
     } catch (error) {
       emit(FavoritesErrorState(message: 'Failed to load favorites: ${error.toString()}'));
@@ -27,18 +27,21 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   
   Future<void> _onAddFavorite(AddFavoriteEvent event, Emitter<FavoritesState> emit) async {
     try {
-      await _favoritesRepository.addFavorite(event.artist);
-      final favorites = await _favoritesRepository.getFavorites();
+      // Utilisation de toggleFavoriteArtist au lieu de addFavorite (inexistante)
+      await _favoritesRepository.toggleFavoriteArtist(event.artist);
+      final favorites =  _favoritesRepository.getFavoriteArtists();
       emit(FavoritesLoadedState(favorites: favorites));
     } catch (error) {
       emit(FavoritesErrorState(message: 'Failed to add to favorites: ${error.toString()}'));
     }
   }
-  
+
   Future<void> _onRemoveFavorite(RemoveFavoriteEvent event, Emitter<FavoritesState> emit) async {
     try {
-      await _favoritesRepository.removeFavorite(event.artistId);
-      final favorites = await _favoritesRepository.getFavorites();
+      // Nous devons créer un Artist temporaire pour utiliser toggleFavoriteArtist
+      final artist = Artist(id: event.artistId);
+      await _favoritesRepository.toggleFavoriteArtist(artist);
+      final favorites =  _favoritesRepository.getFavoriteArtists();
       emit(FavoritesLoadedState(favorites: favorites));
     } catch (error) {
       emit(FavoritesErrorState(message: 'Failed to remove from favorites: ${error.toString()}'));

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../api/models/album.dart';
-import '../../../../api/models/artist.dart';
 import '../../../../api/models/search_result.dart';
 import '../../../../presentation/blocs/search/search_bloc.dart';
 import '../../../../presentation/blocs/search/search_event.dart';
@@ -15,7 +13,7 @@ import '../../../../themes/app_colors.dart';
 import '../../../../themes/app_text_styles.dart';
 
 class SearchTab extends StatefulWidget {
-  const SearchTab({Key? key}) : super(key: key);
+  const SearchTab({super.key});
 
   @override
   State<SearchTab> createState() => _SearchTabState();
@@ -32,7 +30,7 @@ class _SearchTabState extends State<SearchTab> {
     // Add listener to search controller to trigger search on text change
     _searchController.addListener(() {
       if (_searchController.text.isNotEmpty && _searchController.text.length >= 3) {
-        context.read<SearchBloc>().add(SearchEvent(_searchController.text));
+        context.read<SearchBloc>().add(SearchQueryEvent(_searchController.text));
       }
     });
   }
@@ -75,7 +73,7 @@ class _SearchTabState extends State<SearchTab> {
                       message: state.message,
                       onRetry: () {
                         if (_searchController.text.isNotEmpty) {
-                          context.read<SearchBloc>().add(SearchEvent(_searchController.text));
+                          context.read<SearchBloc>().add(SearchQueryEvent(_searchController.text));
                         }
                       },
                     );
@@ -134,7 +132,7 @@ class _SearchTabState extends State<SearchTab> {
       textInputAction: TextInputAction.search,
       onSubmitted: (value) {
         if (value.isNotEmpty) {
-          context.read<SearchBloc>().add(SearchEvent(value));
+          context.read<SearchBloc>().add(SearchQueryEvent(value));
         }
       },
     );

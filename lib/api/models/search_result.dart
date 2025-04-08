@@ -38,28 +38,8 @@ class CombinedSearchResults {
     required this.albumsByArtist,
   });
 
-  // Factory constructor to merge search results
-  factory CombinedSearchResults.fromSearchResults({
-    required SearchArtistResult? artistResults,
-    required Map<String, SearchAlbumResult>? albumsResults,
-  }) {
-    final artists = artistResults?.artists ?? [];
-    final albumsByArtist = <String, List<Album>>{};
-
-    // Organize albums by artist ID
-    if (albumsResults != null) {
-      albumsResults.forEach((artistId, albumResult) {
-        if (albumResult.albums != null && albumResult.albums!.isNotEmpty) {
-          albumsByArtist[artistId] = albumResult.albums!;
-        }
-      });
-    }
-
-    return CombinedSearchResults(
-      artists: artists,
-      albumsByArtist: albumsByArtist,
-    );
-  }
+  // Factory constructor n'est plus nécessaire car nous construisons directement l'objet
+  // avec des listes d'artistes et des maps d'albums
 
   bool get isEmpty => artists.isEmpty && albumsByArtist.isEmpty;
   bool get isNotEmpty => !isEmpty;

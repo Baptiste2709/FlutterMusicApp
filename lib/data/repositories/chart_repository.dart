@@ -7,11 +7,11 @@ class ChartRepository {
   ChartRepository({required ChartService chartService})
       : _chartService = chartService;
   
-  /// Récupère les classements de singles et d'albums depuis l'API
+  // Dans chart_repository.dart
   Future<ChartResponse> getCharts() async {
     try {
-      // Pour cet exercice, nous récupérons les charts US iTunes
-      final chartResponse = await _chartService.getITunesCharts();
+      // Corriger l'appel pour correspondre au nom exact de la méthode définie
+      final chartResponse = await _chartService.getItunesCharts();
       return chartResponse;
     } catch (e) {
       throw Exception('Failed to load charts: $e');

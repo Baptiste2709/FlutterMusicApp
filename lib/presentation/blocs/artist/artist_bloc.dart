@@ -32,8 +32,8 @@ class ArtistBloc extends Bloc<ArtistEvent, ArtistState> {
       }
       
       // Charger les albums de l'artiste
-      final albumsResult = await _albumRepository.getArtistAlbums(event.artistId);
-      final albums = albumsResult.albums ?? [];
+      final albums = await _albumRepository.getArtistAlbums(event.artistId);
+      // Pas besoin d'accéder à .albums car getArtistAlbums retourne déjà une List<Album>
       
       emit(ArtistLoadedState(artist: artist, albums: albums));
     } catch (error) {

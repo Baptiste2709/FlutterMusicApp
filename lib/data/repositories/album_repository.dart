@@ -1,7 +1,5 @@
 import '../../api/client.dart';
 import '../../api/models/album.dart';
-import '../../api/models/search_result.dart';
-import '../../core/exceptions/api_exception.dart';
 
 class AlbumRepository {
   final ApiClient _apiClient = ApiClient();
@@ -20,6 +18,7 @@ class AlbumRepository {
   }
   
   /// Récupère tous les albums d'un artiste par son ID
+  // Cette méthode devrait retourner une List<Album>
   Future<List<Album>> getArtistAlbums(String artistId) async {
     try {
       final response = await _apiClient.albumService.getArtistAlbums(artistId: artistId);

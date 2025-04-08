@@ -1,10 +1,11 @@
 import '../../api/client.dart';
 import '../../api/models/artist.dart';
 import '../../api/models/search_result.dart';
-import '../../core/exceptions/api_exception.dart';
+import '../../api/models/album.dart';
 
 class ArtistRepository {
   final ApiClient _apiClient = ApiClient();
+  
   
   /// Récupère les détails d'un artiste par son ID
   Future<Artist?> getArtistById(String artistId) async {
@@ -20,6 +21,7 @@ class ArtistRepository {
   }
   
   /// Recherche des artistes par nom
+  // Cette méthode devrait retourner une List<Artist> et non pas SearchArtistResult
   Future<List<Artist>> searchArtists(String query) async {
     try {
       final response = await _apiClient.artistService.searchArtists(artistName: query);

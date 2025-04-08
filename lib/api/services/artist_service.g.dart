@@ -12,24 +12,16 @@ class _ArtistService implements ArtistService {
   _ArtistService(
     this._dio, {
     this.baseUrl,
-  }) {
-    baseUrl ??= 'https://theaudiodb.com/api/v1/json';
-  }
+  });
 
   final Dio _dio;
 
   String? baseUrl;
 
   @override
-  Future<ArtistResponse> getArtistById({
-    String token = ApiConstants.token,
-    required String artistId,
-  }) async {
+  Future<ArtistResponse> getArtistById({required String artistId}) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'token': token,
-      r'i': artistId,
-    };
+    final queryParameters = <String, dynamic>{r'i': artistId};
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;
     final _result = await _dio
@@ -54,15 +46,9 @@ class _ArtistService implements ArtistService {
   }
 
   @override
-  Future<SearchArtistResult> searchArtists({
-    String token = ApiConstants.token,
-    required String artistName,
-  }) async {
+  Future<SearchArtistResult> searchArtists({required String artistName}) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'token': token,
-      r's': artistName,
-    };
+    final queryParameters = <String, dynamic>{r's': artistName};
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;
     final _result = await _dio

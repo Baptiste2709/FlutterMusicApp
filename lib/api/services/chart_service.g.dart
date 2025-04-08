@@ -12,62 +12,21 @@ class _ChartService implements ChartService {
   _ChartService(
     this._dio, {
     this.baseUrl,
-  }) {
-    baseUrl ??= 'https://theaudiodb.com/api/v1/json';
-  }
+  });
 
   final Dio _dio;
 
   String? baseUrl;
 
   @override
-  Future<ChartResponse> getITunesCharts({
-    String token = ApiConstants.token,
-    String country = 'us',
-    String type = 'itunes',
+  Future<ChartResponse> getItunesCharts({
+    String country = ApiConstants.countryUS,
+    String type = ApiConstants.typeITunes,
   }) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
-      r'token': token,
       r'country': country,
       r'type': type,
-    };
-    final _headers = <String, dynamic>{};
-    final Map<String, dynamic>? _data = null;
-    final _result = await _dio
-        .fetch<Map<String, dynamic>>(_setStreamType<ChartResponse>(Options(
-      method: 'GET',
-      headers: _headers,
-      extra: _extra,
-    )
-            .compose(
-              _dio.options,
-              '/charts.php',
-              queryParameters: queryParameters,
-              data: _data,
-            )
-            .copyWith(
-                baseUrl: _combineBaseUrls(
-              _dio.options.baseUrl,
-              baseUrl,
-            ))));
-    final value = ChartResponse.fromJson(_result.data!);
-    return value;
-  }
-
-  @override
-  Future<ChartResponse> getTrendingCharts({
-    String token = ApiConstants.token,
-    String country = 'us',
-    String type = 'itunes',
-    String format = 'singles',
-  }) async {
-    const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'token': token,
-      r'country': country,
-      r'type': type,
-      r'format': format,
     };
     final _headers = <String, dynamic>{};
     final Map<String, dynamic>? _data = null;

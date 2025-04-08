@@ -6,8 +6,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../api/models/artist.dart';
 import '../../../api/models/album.dart';
-import '../../../core/constants/design_constants.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/utils/string_utils.dart';
 import '../../../presentation/blocs/artist/artist_bloc.dart';
 import '../../../presentation/blocs/artist/artist_event.dart';
