@@ -100,6 +100,7 @@ class ApiService {
           artist: item['strArtist'] ?? 'Artiste inconnu',
           imageUrl: item['strTrackThumb'] ?? '',
           artistId: artistId, // Ajouter l'ID de l'artiste
+          trackId: item['idTrack'] ?? '', // Récupérer l'ID du titre
         )
       );
     }

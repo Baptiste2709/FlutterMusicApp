@@ -4,6 +4,8 @@ class SingleModel {
   final String artist;
   final String imageUrl;
   final String artistId; // Ajout de l'ID de l'artiste
+    final String trackId; // Ajouter cette propriété
+
 
 
   SingleModel({
@@ -12,6 +14,8 @@ class SingleModel {
     required this.artist,
     required this.imageUrl,
     required this.artistId, // Rendre obligatoire l'ID de l'artiste
+        required this.trackId, // Rendre obligatoire l'ID du titre
+
   });
 
   factory SingleModel.fromJson(Map<String, dynamic> json) {
@@ -21,6 +25,7 @@ class SingleModel {
       artist: json['artist'] ?? '',
       imageUrl: json['image'] ?? '',
       artistId: json['artistId'] ?? '', // Récupérer l'ID de l'artiste
+      trackId: json['trackId'] ?? '',
     );
   }
 
@@ -31,6 +36,7 @@ class SingleModel {
       'artist': artist,
       'image': imageUrl,
       'artistId': artistId,
+      'trackId' : trackId
     };
   }
 }
