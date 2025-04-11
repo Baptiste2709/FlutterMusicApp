@@ -10,7 +10,8 @@ class ApiService {
   static Future<List<dynamic>> searchArtists(String query) async {
     if (query.isEmpty) return [];
     
-    final url = Uri.parse('$baseUrl/search.php?s=$query');
+    // Version simplifiée pour utiliser l'API de recherche d'artiste par nom
+    final url = Uri.parse('$baseUrl/search.php?s=${Uri.encodeComponent(query)}');
     final response = await http.get(url);
     
     if (response.statusCode == 200) {
@@ -22,8 +23,11 @@ class ApiService {
         return {
           'id': artist['idArtist'],
           'name': artist['strArtist'],
-          'imageUrl': artist['strArtistThumb'],
+          'imageUrl': artist['strArtistThumb'] ?? '',
           'type': 'artist',
+          'country': artist['strCountry'] ?? '',
+          'genre': artist['strGenre'] ?? '',
+          'description': artist['strBiographyFR'] ?? artist['strBiographyEN'] ?? '',
         };
       }).toList();
     } else {
@@ -31,11 +35,11 @@ class ApiService {
     }
   }
   
-  // Recherche d'albums
+  // Recherche d'albums par nom d'artiste
   static Future<List<dynamic>> searchAlbums(String query) async {
     if (query.isEmpty) return [];
     
-    final url = Uri.parse('$baseUrl/searchalbum.php?s=$query');
+    final url = Uri.parse('$baseUrl/searchalbum.php?s=${Uri.encodeComponent(query)}');
     final response = await http.get(url);
     
     if (response.statusCode == 200) {
@@ -48,8 +52,12 @@ class ApiService {
           'id': album['idAlbum'],
           'title': album['strAlbum'],
           'artist': album['strArtist'],
-          'imageUrl': album['strAlbumThumb'],
+          'artistId': album['idArtist'],
+          'imageUrl': album['strAlbumThumb'] ?? '',
           'type': 'album',
+          'year': album['intYearReleased'] ?? '',
+          'genre': album['strGenre'] ?? '',
+          'description': album['strDescriptionFR'] ?? album['strDescriptionEN'] ?? '',
         };
       }).toList();
     } else {
@@ -170,5 +178,46 @@ class ApiService {
     } else {
       throw Exception('Échec de la récupération des détails de l\'album');
     }
+  }
+  
+  // Obtenir les genres musicaux (prédéfinis)
+  static Future<List<String>> getMusicGenres() async {
+    // Liste de genres musicaux prédéfinis
+    return [
+      'Pop', 'Rock', 'Hip Hop', 'R&B', 'Jazz', 'Électronique',
+      'Classique', 'Reggae', 'Country', 'Blues', 'Folk', 'Metal'
+    ];
+  }
+
+  // Obtenir des artistes populaires
+  static Future<List<dynamic>> getPopularArtists() async {
+    // Une liste d'artistes populaires à rechercher
+    final popularNames = ['Coldplay', 'Drake', 'Taylor Swift', 'Beyonce', 'Adele', 'Ed Sheeran'];
+    List<dynamic> results = [];
+    
+    // Rechercher Coldplay qui est pris en charge par l'API gratuite
+    try {
+      final response = await searchArtists('coldplay');
+      if (response.isNotEmpty) {
+        results.add(response[0]);
+      }
+      
+      // Pour simuler plus d'artistes populaires (en production, vous utiliseriez l'API complète)
+      for (int i = 1; i < popularNames.length; i++) {
+        results.add({
+          'id': '1000$i',
+          'name': popularNames[i],
+          'imageUrl': '',  // pas d'image réelle disponible sans API premium
+          'type': 'artist',
+          'genre': i % 2 == 0 ? 'Pop' : 'Rock',
+          'country': 'US',
+        });
+      }
+    } catch (e) {
+      // En cas d'erreur, retourner une liste vide
+      print('Erreur lors de la récupération des artistes populaires: $e');
+    }
+    
+    return results;
   }
 }
