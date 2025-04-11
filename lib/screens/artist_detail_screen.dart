@@ -238,59 +238,79 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with SingleTick
   }
 
   Widget _buildAlbumsTab() {
-    // Si on n'a pas d'albums, on affiche des albums simulés
-    final albumsToShow = _albums.isNotEmpty 
-        ? _albums 
-        : [
-            AlbumModel(position: 1, title: 'Revival', artist: _artistDetail!['strArtist'] ?? widget.artistName, imageUrl: ''),
-            AlbumModel(position: 2, title: 'Star Boy', artist: _artistDetail!['strArtist'] ?? widget.artistName, imageUrl: ''),
-            AlbumModel(position: 3, title: 'Beauty Behind the Madness', artist: _artistDetail!['strArtist'] ?? widget.artistName, imageUrl: ''),
-          ];
-          
-    return ListView.builder(
-      padding: const EdgeInsets.all(0),
-      itemCount: albumsToShow.length,
-      itemBuilder: (context, index) {
-        final album = albumsToShow[index];
-        return ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
-              width: 50,
-              height: 50,
-              color: Colors.grey[300],
-              child: album.imageUrl.isNotEmpty
-                ? Image.network(
-                    album.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(child: Text('A', style: TextStyle(color: Colors.white)));
-                    },
-                  )
-                : const Center(child: Text('A', style: TextStyle(color: Colors.white))),
-            ),
+  // Si on n'a pas d'albums, on affiche des albums simulés
+  final albumsToShow = _albums.isNotEmpty 
+      ? _albums 
+      : [
+          AlbumModel(
+            position: 1, 
+            title: 'Revival', 
+            artist: _artistDetail!['strArtist'] ?? widget.artistName, 
+            imageUrl: '',
+            albumId: '11111', // ID simulé pour l'album
+            artistId: widget.artistId, // Utiliser l'ID de l'artiste actuel
           ),
-          title: Text(
-            album.title,
-            style: const TextStyle(fontWeight: FontWeight.w500),
+          AlbumModel(
+            position: 2, 
+            title: 'Star Boy', 
+            artist: _artistDetail!['strArtist'] ?? widget.artistName, 
+            imageUrl: '',
+            albumId: '22222', // ID simulé pour l'album
+            artistId: widget.artistId, // Utiliser l'ID de l'artiste actuel
           ),
-          trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AlbumDetailScreen(
-                  albumId: album.position.toString(),
-                  albumName: album.title,
-                ),
+          AlbumModel(
+            position: 3, 
+            title: 'Beauty Behind the Madness', 
+            artist: _artistDetail!['strArtist'] ?? widget.artistName, 
+            imageUrl: '',
+            albumId: '33333', // ID simulé pour l'album
+            artistId: widget.artistId, // Utiliser l'ID de l'artiste actuel
+          ),
+        ];
+        
+  return ListView.builder(
+    padding: const EdgeInsets.all(0),
+    itemCount: albumsToShow.length,
+    itemBuilder: (context, index) {
+      final album = albumsToShow[index];
+      return ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: Container(
+            width: 50,
+            height: 50,
+            color: Colors.grey[300],
+            child: album.imageUrl.isNotEmpty
+              ? Image.network(
+                  album.imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(child: Text('A', style: TextStyle(color: Colors.white)));
+                  },
+                )
+              : const Center(child: Text('A', style: TextStyle(color: Colors.white))),
+          ),
+        ),
+        title: Text(
+          album.title,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AlbumDetailScreen(
+                albumId: album.albumId, // Utiliser l'ID de l'album
+                albumName: album.title,
               ),
-            );
-          },
-        );
-      },
-    );
-  }
-
+            ),
+          );
+        },
+      );
+    },
+  );
+}
   Widget _buildPopularTracksTab() {
     return ListView.builder(
       padding: const EdgeInsets.all(0),

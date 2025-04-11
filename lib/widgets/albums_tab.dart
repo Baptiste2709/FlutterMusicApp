@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/album_model.dart';
 import '../services/api_service.dart';
 import '../constants/app_colors.dart';
+import '../screens/album_detail_screen.dart';
+import '../screens/artist_detail_screen.dart';
 
 class AlbumsTab extends StatefulWidget {
   const AlbumsTab({Key? key}) : super(key: key);
@@ -140,10 +142,106 @@ class _AlbumsTabState extends State<AlbumsTab> {
             ),
             onTap: () {
               // Navigation vers les détails de l'album
+              if (album.albumId.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AlbumDetailScreen(
+                      albumId: album.albumId,
+                      albumName: album.title,
+                    ),
+                  ),
+                );
+              } else if (album.artistId.isNotEmpty) {
+                // Si l'ID de l'album n'est pas disponible mais l'ID de l'artiste l'est
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ArtistDetailScreen(
+                      artistId: album.artistId,
+                      artistName: album.artist,
+                    ),
+                  ),
+                );
+              } else {
+                // Si aucun ID n'est disponible, effectuer une recherche
+                _searchAndNavigateToAlbum(context, album.title, album.artist);
+              }
             },
           ),
         );
       },
     );
+  }
+  
+  // Méthode pour rechercher l'album et naviguer vers ses détails
+  Future<void> _searchAndNavigateToAlbum(BuildContext context, String albumName, String artistName) async {
+    try {
+      // Afficher un indicateur de chargement
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
+      
+      final albums = await ApiService.searchAlbums(artistName);
+      
+      // Fermer l'indicateur de chargement
+      Navigator.pop(context);
+      
+      // Chercher l'album correspondant
+      Map<String, dynamic>? foundAlbum;
+      for (var album in albums) {
+        if (album['title'] == albumName) {
+          foundAlbum = album;
+          break;
+        }
+      }
+      
+      if (foundAlbum != null && foundAlbum['id'] != null) {
+        // Naviguer vers les détails de l'album
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AlbumDetailScreen(
+              albumId: foundAlbum?['id'],
+              albumName: albumName,
+            ),
+          ),
+        );
+      } else {
+        // Si l'album n'est pas trouvé, essayer de naviguer vers l'artiste
+        final artists = await ApiService.searchArtists(artistName);
+        
+        if (artists.isNotEmpty && artists[0]['id'] != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ArtistDetailScreen(
+                artistId: artists[0]['id'],
+                artistName: artistName,
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Impossible de trouver cet album ou artiste'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Fermer l'indicateur de chargement en cas d'erreur
+      Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: $e'),
+        ),
+      );
+    }
   }
 }
