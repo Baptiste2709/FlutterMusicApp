@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'track_lyrics_screen.dart';
 
 class AlbumDetailScreen extends StatefulWidget {
   final String albumId;
@@ -19,6 +20,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   Map<String, dynamic>? _albumDetail;
   bool _isLoading = true;
   bool _isError = false;
+  List<Map<String, dynamic>> _tracks = [];
 
   @override
   void initState() {
@@ -36,9 +38,56 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
       // Charger les détails de l'album
       final albumData = await ApiService.getAlbumDetails(widget.albumId);
       
+      // Simuler des titres pour l'album
+      final mockTracks = [
+        {
+          'id': '1',
+          'title': 'Walk on Water feat. Beyoncé',
+          'duration': '5:03',
+          'featuring': 'Beyoncé'
+        },
+        {
+          'id': '2',
+          'title': 'Believe',
+          'duration': '4:25',
+          'featuring': ''
+        },
+        {
+          'id': '3',
+          'title': 'Chloraseptic feat. Phresher',
+          'duration': '5:30',
+          'featuring': 'Phresher'
+        },
+        {
+          'id': '4',
+          'title': 'Untouchable',
+          'duration': '6:10',
+          'featuring': ''
+        },
+        {
+          'id': '5',
+          'title': 'River feat. Ed Sheeran',
+          'duration': '3:41',
+          'featuring': 'Ed Sheeran'
+        },
+        {
+          'id': '6',
+          'title': 'Remind Me (Intro)',
+          'duration': '3:16',
+          'featuring': ''
+        },
+        {
+          'id': '7',
+          'title': 'Revival',
+          'duration': '5:08',
+          'featuring': ''
+        },
+      ];
+      
       if (mounted) {
         setState(() {
           _albumDetail = albumData;
+          _tracks = mockTracks;
           _isLoading = false;
         });
       }
@@ -92,7 +141,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
     // Obtenir la description dans la langue de l'utilisateur ou en anglais par défaut
     String description = _albumDetail!['strDescriptionFR'] ?? 
                          _albumDetail!['strDescriptionEN'] ?? 
-                         'Aucune description disponible';
+                         'Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s. When an unknown printer took a copy of type and scrambled it to make.';
                          
     return CustomScrollView(
       slivers: [
@@ -104,12 +153,28 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Titre de l'album
-                Text(
-                  _albumDetail!['strAlbum'] ?? widget.albumName,
-                  style: const TextStyle(
-                    fontSize: 28, 
-                    fontWeight: FontWeight.bold
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _albumDetail!['strAlbum'] ?? widget.albumName,
+                        style: const TextStyle(
+                          fontSize: 28, 
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.favorite_border,
+                        color: Colors.grey,
+                        size: 28,
+                      ),
+                      onPressed: () {
+                        // Ajouter aux favoris
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 4),
                 
@@ -123,96 +188,111 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Détails de l'album
-                if (_albumDetail!['strGenre'] != null)
-                  _buildInfoRow('Genre', _albumDetail!['strGenre']),
-                if (_albumDetail!['intYearReleased'] != null)
-                  _buildInfoRow('Année', _albumDetail!['intYearReleased']),
-                if (_albumDetail!['strLabel'] != null)
-                  _buildInfoRow('Label', _albumDetail!['strLabel']),
-                
-                const SizedBox(height: 24),
-                
-                // Description
-                const Text(
-                  'Description',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // Statistiques de l'album
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    children: [
+                      _buildStatItem('342', 'ventes'),
+                      const SizedBox(width: 32),
+                      _buildStatItem('17', 'streams'),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(description),
                 
                 const SizedBox(height: 16),
                 
-                // Titres les plus populaires (simulé car l'API gratuite ne fournit pas les titres)
-                const Text(
-                  'Titres les plus appréciés',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                // Description
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    height: 1.5,
+                  ),
                 ),
-                const SizedBox(height: 8),
                 
-                // Liste de faux titres pour la démo
-                _buildMockTracksList(),
+                const SizedBox(height: 24),
+                
+                // Section Titres
+                const Text(
+                  'Titres',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
         ),
+        
+        // Liste des titres
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final track = _tracks[index];
+              return ListTile(
+                leading: Text(
+                  '${index + 1}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                title: Text(
+                  track['title'],
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                trailing: const Icon(Icons.more_vert, color: Colors.grey),
+                onTap: () {
+                  // Navigation vers l'écran des paroles
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TrackLyricsScreen(
+                        trackId: track['id'],
+                        trackTitle: track['title'],
+                        artistName: _albumDetail!['strArtist'] ?? 'Artiste inconnu',
+                        featuring: track['featuring'] ?? '',
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            childCount: _tracks.length,
+          ),
+        ),
+        
+        // Espacement en bas
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
       ],
     );
   }
 
-  Widget _buildInfoRow(String label, dynamic value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
-      child: Row(
-        children: [
-          Text(
-            '$label: ',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+  Widget _buildStatItem(String value, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
-          Text(
-            value.toString(),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMockTracksList() {
-    // Simuler une liste de titres pour la démo
-    final trackNames = [
-      'Track 1 (feat. Another Artist)',
-      'Track 2',
-      'Track 3 feat. Someone',
-      'Track 4',
-      'Track 5 (Remix)',
-      'Track 6',
-      'Track 7'
-    ];
-    
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: 7,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: Text(
-            '${index + 1}',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          title: Text(trackNames[index]),
-          trailing: const Icon(Icons.more_vert),
-        );
-      },
+        ),
+      ],
     );
   }
 

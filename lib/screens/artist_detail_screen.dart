@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/album_model.dart';
 import 'album_detail_screen.dart';
+import 'track_lyrics_screen.dart';
 import '../blocs/favorites_bloc.dart';
 
 class ArtistDetailScreen extends StatefulWidget {
@@ -18,18 +19,37 @@ class ArtistDetailScreen extends StatefulWidget {
   State<ArtistDetailScreen> createState() => _ArtistDetailScreenState();
 }
 
-class _ArtistDetailScreenState extends State<ArtistDetailScreen> {
+class _ArtistDetailScreenState extends State<ArtistDetailScreen> with SingleTickerProviderStateMixin {
   Map<String, dynamic>? _artistDetail;
   List<AlbumModel> _albums = [];
   bool _isLoading = true;
   bool _isError = false;
   bool _isFavorite = false;
+  late TabController _tabController;
+  
+  // Titres populaires simulés
+  final List<Map<String, dynamic>> _popularTracks = [
+    {'title': 'Walk on Water feat. Beyoncé', 'id': '1'},
+    {'title': 'Believe', 'id': '2'},
+    {'title': 'Chloraseptic feat. Phresher', 'id': '3'},
+    {'title': 'Untouchable', 'id': '4'},
+    {'title': 'River feat. Ed Sheeran', 'id': '5'},
+    {'title': 'Remind Me (Intro)', 'id': '6'},
+    {'title': 'Revival', 'id': '7'},
+  ];
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _loadArtistDetails();
     _checkIfFavorite();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadArtistDetails() async {
@@ -56,6 +76,16 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> {
         setState(() {
           _isLoading = false;
           _isError = true;
+          
+          // En cas d'erreur, simuler quelques données
+          _artistDetail = {
+            'strArtist': 'Eminem',
+            'strArtistThumb': 'https://www.theaudiodb.com/images/media/artist/thumb/eminem.jpg',
+            'strGenre': 'Hip Hop',
+            'strCountry': 'USA',
+            'intFormedYear': '1996',
+            'strBiographyEN': 'Eminem, born Marshall Bruce Mathers III, is an American rapper, songwriter, and record producer. Eminem is among the best-selling music artists of all time, with estimated worldwide sales of over 220 million records.'
+          };
         });
       }
       print('Erreur lors du chargement des détails de l\'artiste: $e');
@@ -95,7 +125,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> {
     return Scaffold(
       body: _isLoading 
           ? const Center(child: CircularProgressIndicator())
-          : _isError 
+          : _isError && _artistDetail == null
               ? _buildErrorView()
               : _buildArtistDetailView(),
     );
@@ -126,121 +156,181 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> {
   Widget _buildArtistDetailView() {
     if (_artistDetail == null) return const Center(child: Text('Aucune information disponible'));
     
-    // Obtenir la biographie dans la langue de l'utilisateur ou en anglais par défaut
-    String biography = _artistDetail!['strBiographyFR'] ?? 
-                       _artistDetail!['strBiographyEN'] ?? 
-                       'Aucune biographie disponible';
-                       
     return CustomScrollView(
       slivers: [
         _buildAppBar(),
+        
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Informations générales
-                Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Information de l'artiste en tête
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _artistDetail!['strArtist'] ?? widget.artistName,
-                      style: const TextStyle(
-                        fontSize: 28, 
-                        fontWeight: FontWeight.bold
-                      ),
+                    // Nom et bouton favori
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _artistDetail!['strArtist'] ?? widget.artistName,
+                            style: const TextStyle(
+                              fontSize: 28, 
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            _isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: _isFavorite ? Colors.red : Colors.grey,
+                            size: 28,
+                          ),
+                          onPressed: _toggleFavorite,
+                        ),
+                      ],
                     ),
-                    const Spacer(),
-                    IconButton(
-                      icon: Icon(
-                        _isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: _isFavorite ? Colors.red : Colors.grey,
-                        size: 28,
-                      ),
-                      onPressed: _toggleFavorite,
-                    ),
+                    
+                    // Détails de l'artiste
+                    if (_artistDetail!['strGenre'] != null)
+                      _buildInfoRow('Genre', _artistDetail!['strGenre']),
+                    if (_artistDetail!['strCountry'] != null)
+                      _buildInfoRow('Pays', _artistDetail!['strCountry']),
+                    if (_artistDetail!['intFormedYear'] != null)
+                      _buildInfoRow('Actif depuis', _artistDetail!['intFormedYear']),
                   ],
                 ),
-                const SizedBox(height: 8),
-                
-                // Détails de l'artiste
-                if (_artistDetail!['strGenre'] != null)
-                  _buildInfoRow('Genre', _artistDetail!['strGenre']),
-                if (_artistDetail!['strCountry'] != null)
-                  _buildInfoRow('Pays', _artistDetail!['strCountry']),
-                if (_artistDetail!['intFormedYear'] != null)
-                  _buildInfoRow('Formé en', _artistDetail!['intFormedYear']),
-                
-                const SizedBox(height: 16),
-                
-                // Biographie
-                const Text(
-                  'Biographie',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(biography),
-                
-                const SizedBox(height: 24),
-                
-                // Albums
-                const Text(
-                  'Albums',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
+              ),
+              
+              // Onglets
+              TabBar(
+                controller: _tabController,
+                labelColor: Colors.green,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Colors.green,
+                tabs: const [
+                  Tab(text: 'Albums'),
+                  Tab(text: 'Titres populaires'),
+                ],
+              ),
+            ],
+          ),
+        ),
+        
+        // Contenu des onglets
+        SliverFillRemaining(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // Onglet Albums
+              _buildAlbumsTab(),
+              
+              // Onglet Titres populaires
+              _buildPopularTracksTab(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlbumsTab() {
+    // Si on n'a pas d'albums, on affiche des albums simulés
+    final albumsToShow = _albums.isNotEmpty 
+        ? _albums 
+        : [
+            AlbumModel(position: 1, title: 'Revival', artist: _artistDetail!['strArtist'] ?? widget.artistName, imageUrl: ''),
+            AlbumModel(position: 2, title: 'Star Boy', artist: _artistDetail!['strArtist'] ?? widget.artistName, imageUrl: ''),
+            AlbumModel(position: 3, title: 'Beauty Behind the Madness', artist: _artistDetail!['strArtist'] ?? widget.artistName, imageUrl: ''),
+          ];
+          
+    return ListView.builder(
+      padding: const EdgeInsets.all(0),
+      itemCount: albumsToShow.length,
+      itemBuilder: (context, index) {
+        final album = albumsToShow[index];
+        return ListTile(
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Container(
+              width: 50,
+              height: 50,
+              color: Colors.grey[300],
+              child: album.imageUrl.isNotEmpty
+                ? Image.network(
+                    album.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(child: Text('A', style: TextStyle(color: Colors.white)));
+                    },
+                  )
+                : const Center(child: Text('A', style: TextStyle(color: Colors.white))),
             ),
           ),
-        ),
-        
-        // Liste des albums
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final album = _albums[index];
-              return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    color: Colors.grey[300],
-                    child: album.imageUrl.isNotEmpty
-                      ? Image.network(
-                          album.imageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(child: Text('A', style: TextStyle(color: Colors.white)));
-                          },
-                        )
-                      : const Center(child: Text('A', style: TextStyle(color: Colors.white))),
-                  ),
-                ),
-                title: Text(
-                  album.title,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AlbumDetailScreen(
-                        albumId: album.position.toString(),
-                        albumName: album.title,
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-            childCount: _albums.length,
+          title: Text(
+            album.title,
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
-        ),
-        
-        // Espacement en bas
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-      ],
+          trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AlbumDetailScreen(
+                  albumId: album.position.toString(),
+                  albumName: album.title,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPopularTracksTab() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(0),
+      itemCount: _popularTracks.length,
+      itemBuilder: (context, index) {
+        final track = _popularTracks[index];
+        return ListTile(
+          leading: Text(
+            '${index + 1}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+          title: Text(
+            track['title'],
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          trailing: const Icon(Icons.more_vert, color: Colors.grey),
+          onTap: () {
+            // Naviguer vers l'écran des paroles
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TrackLyricsScreen(
+                  trackId: track['id'],
+                  trackTitle: track['title'],
+                  artistName: _artistDetail!['strArtist'] ?? widget.artistName,
+                  featuring: track['title'].contains('feat.') 
+                      ? track['title'].split('feat.')[1].trim() 
+                      : '',
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
