@@ -24,12 +24,12 @@ class FavoritesBloc {
     final List<Map<String, dynamic>> favorites = [];
     
     for (var key in _favoritesBox!.keys) {
-      if (key.toString().startsWith('artist_')) {
+      if (key.toString().startsWith('artist_') || key.toString().startsWith('album_')) {
         final jsonString = _favoritesBox!.get(key);
         if (jsonString != null) {
           try {
-            final Map<String, dynamic> artist = json.decode(jsonString);
-            favorites.add(artist);
+            final Map<String, dynamic> favorite = json.decode(jsonString);
+            favorites.add(favorite);
           } catch (e) {
             print('Erreur lors de la lecture des favoris: $e');
           }
@@ -46,9 +46,18 @@ class FavoritesBloc {
     return _favoritesBox!.containsKey('artist_$artistId');
   }
   
+  // Vérifier si un album est dans les favoris
+  static Future<bool> isAlbumFavorite(String albumId) async {
+    if (_favoritesBox == null) return false;
+    return _favoritesBox!.containsKey('album_$albumId');
+  }
+  
   // Ajouter un artiste aux favoris
   static Future<void> addArtistToFavorites(Map<String, dynamic> artist) async {
     if (_favoritesBox == null) return;
+    
+    // S'assurer que le type est défini
+    artist['type'] = 'artist';
     
     final String artistId = artist['id'];
     await _favoritesBox!.put('artist_$artistId', json.encode(artist));
@@ -56,6 +65,22 @@ class FavoritesBloc {
     // Mettre à jour la liste des favoris
     final currentFavorites = List<Map<String, dynamic>>.from(favoritesNotifier.value);
     currentFavorites.add(artist);
+    favoritesNotifier.value = currentFavorites;
+  }
+  
+  // Ajouter un album aux favoris
+  static Future<void> addAlbumToFavorites(Map<String, dynamic> album) async {
+    if (_favoritesBox == null) return;
+    
+    // S'assurer que le type est défini
+    album['type'] = 'album';
+    
+    final String albumId = album['id'];
+    await _favoritesBox!.put('album_$albumId', json.encode(album));
+    
+    // Mettre à jour la liste des favoris
+    final currentFavorites = List<Map<String, dynamic>>.from(favoritesNotifier.value);
+    currentFavorites.add(album);
     favoritesNotifier.value = currentFavorites;
   }
   
@@ -67,12 +92,24 @@ class FavoritesBloc {
     
     // Mettre à jour la liste des favoris
     final currentFavorites = List<Map<String, dynamic>>.from(favoritesNotifier.value);
-    currentFavorites.removeWhere((artist) => artist['id'] == artistId);
+    currentFavorites.removeWhere((item) => item['type'] == 'artist' && item['id'] == artistId);
     favoritesNotifier.value = currentFavorites;
   }
   
-  // Obtenir tous les artistes favoris
-  static List<Map<String, dynamic>> getAllFavoriteArtists() {
+  // Supprimer un album des favoris
+  static Future<void> removeAlbumFromFavorites(String albumId) async {
+    if (_favoritesBox == null) return;
+    
+    await _favoritesBox!.delete('album_$albumId');
+    
+    // Mettre à jour la liste des favoris
+    final currentFavorites = List<Map<String, dynamic>>.from(favoritesNotifier.value);
+    currentFavorites.removeWhere((item) => item['type'] == 'album' && item['id'] == albumId);
+    favoritesNotifier.value = currentFavorites;
+  }
+  
+  // Obtenir tous les favoris
+  static List<Map<String, dynamic>> getAllFavorites() {
     return favoritesNotifier.value;
   }
   

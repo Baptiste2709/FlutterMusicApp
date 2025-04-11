@@ -13,6 +13,7 @@ class TrackLyricsScreen extends StatelessWidget {
     required this.artistName,
     required this.featuring,
   }) : super(key: key);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +94,8 @@ Fuck, I just didn't say nothing!''';
     final lines = lyrics.split('\n');
     String currentSection = '';
     String currentSectionText = '';
+    bool _isFavorite = false;
+  
     
     for (final line in lines) {
       if (line.contains('[') && line.contains(']')) {

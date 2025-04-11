@@ -51,6 +51,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with SingleTick
     _tabController.dispose();
     super.dispose();
   }
+  
 
   Future<void> _loadArtistDetails() async {
     setState(() {

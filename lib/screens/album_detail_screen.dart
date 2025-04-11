@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'track_lyrics_screen.dart';
+import '../blocs/favorites_bloc.dart';
 
 class AlbumDetailScreen extends StatefulWidget {
   final String albumId;
@@ -21,11 +22,42 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   bool _isLoading = true;
   bool _isError = false;
   List<Map<String, dynamic>> _tracks = [];
+  bool _isFavorite = false;
 
   @override
   void initState() {
     super.initState();
     _loadAlbumDetails();
+    _checkIfFavorite();
+  }
+
+  Future<void> _checkIfFavorite() async {
+    final isFav = await FavoritesBloc.isAlbumFavorite(widget.albumId);
+    if (mounted) {
+      setState(() {
+        _isFavorite = isFav;
+      });
+    }
+  }
+
+  void _toggleFavorite() async {
+    if (_isFavorite) {
+      await FavoritesBloc.removeAlbumFromFavorites(widget.albumId);
+    } else {
+      if (_albumDetail != null) {
+        await FavoritesBloc.addAlbumToFavorites({
+          'id': widget.albumId,
+          'title': _albumDetail!['strAlbum'] ?? widget.albumName,
+          'artist': _albumDetail!['strArtist'] ?? 'Artiste inconnu',
+          'imageUrl': _albumDetail!['strAlbumThumb'] ?? '',
+          'type': 'album',
+        });
+      }
+    }
+    
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
   }
 
   Future<void> _loadAlbumDetails() async {
@@ -165,14 +197,12 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
-                        Icons.favorite_border,
-                        color: Colors.grey,
+                      icon: Icon(
+                        _isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: _isFavorite ? Colors.red : Colors.grey,
                         size: 28,
                       ),
-                      onPressed: () {
-                        // Ajouter aux favoris
-                      },
+                      onPressed: _toggleFavorite,
                     ),
                   ],
                 ),
