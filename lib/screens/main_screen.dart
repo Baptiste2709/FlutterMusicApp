@@ -127,7 +127,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         );
       case 1:
         // Onglet Recherche
-        return const SearchTestScreen();
+        return const SearchScreen();
       case 2:
         // Onglet Favoris
         return const FavoritesScreen();
